@@ -7,8 +7,8 @@ import json
 
 router = APIRouter(prefix="/gargi", tags=["Gargi AI Assistant"])
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyCik5csC6oLnfIaQw65vVNPTbw7dXVpc3w")
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "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")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 
 SYSTEM_PROMPT = """You are Gargi, an energy market analyst AI developed by Yogesh Kumar Jha in India. 
 You specialize in Indian energy sector analysis, power generation, renewable energy, and energy policy.
