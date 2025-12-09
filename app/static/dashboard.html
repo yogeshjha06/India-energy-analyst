@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Energy Dashboard</title>
+    <link rel="icon" type="image/png" href="/static/img/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔋 India Energy Market Dashboard</h1>
+            <p>Real-time Power Generation & Capacity Analytics</p>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon">⚡</div>
+                <div class="kpi-content">
+                    <h3 id="totalCapacity">Loading...</h3>
+                    <p>Total Capacity (MW)</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🟢</div>
+                <div class="kpi-content">
+                    <h3 id="onlineCapacity">Loading...</h3>
+                    <p>Online Capacity (MW)</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">📊</div>
+                <div class="kpi-content">
+                    <h3 id="todayGeneration">Loading...</h3>
+                    <p>Today's Generation (MU)</p>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🌱</div>
+                <div class="kpi-content">
+                    <h3 id="renewableShare">Loading...</h3>
+                    <p>Renewable Share (%)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">Overview</button>
+            <button class="tab" onclick="showTab('historical')">Historical</button>
+            <button class="tab" onclick="showTab('transmission')">Transmission</button>
+
+            <button class="tab" onclick="showTab('data')">Playground</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="overview" class="tab-content active">
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3>Current Energy Mix (2024)</h3>
+                    <canvas id="energyMixChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Capacity Status</h3>
+                    <canvas id="capacityStatusChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card full-width">
+                <h3>Historical Capacity Growth (1946-2024)</h3>
+                <canvas id="capacityGrowthChart"></canvas>
+            </div>
+        </div>
+
+        <div id="historical" class="tab-content">
+            <div class="chart-card full-width">
+                <h3>Generation Trends (1946-2024)</h3>
+                <canvas id="generationTrendsChart"></canvas>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3>Thermal vs Renewable</h3>
+                    <canvas id="thermalVsRenewableChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>2023-24 Generation Mix</h3>
+                    <canvas id="generationMixChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="transmission" class="tab-content">
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3>Transmission Lines by Voltage</h3>
+                    <canvas id="voltageDistChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Transmission Growth (2021-2026)</h3>
+                    <canvas id="transmissionGrowthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="data" class="tab-content">
+            <div style="flex:1; padding-right:24px;">
+            <!-- Installed Capacity -->
+            <div class="chart-card full-width">
+                <h3>Installed Capacity Data <input type="checkbox" class="chart-context" data-section="capacity" style="float:right;"></h3>
+                <div class="table-controls">
+                    <button onclick="toggleView('capacity', 'table')">📋 Table</button>
+                    <button onclick="toggleView('capacity', 'pie')">🥧 Pie</button>
+                    <button onclick="toggleView('capacity', 'bar')">📊 Bar</button>
+                    <button onclick="exportTableCSV('capacityTable', 'capacity.csv')">📥 CSV</button>
+                </div>
+                <div id="capacityTable"></div>
+                <div style="max-width:600px; max-height:400px; margin:0 auto;">
+                    <canvas id="capacityPie" style="display:none;"></canvas>
+                </div>
+                <div style="max-width:800px; max-height:400px; margin:0 auto;">
+                    <canvas id="capacityBar" style="display:none;"></canvas>
+                </div>
+            </div>
+
+            <!-- Transmission Lines by Voltage -->
+            <div class="chart-card full-width">
+                <h3>Transmission Lines by Voltage <input type="checkbox" class="chart-context" data-section="transmissionVoltage" style="float:right;"></h3>
+                <div class="table-controls">
+                    <button onclick="toggleView('transmissionVoltage', 'table')">📋 Table</button>
+                    <button onclick="toggleView('transmissionVoltage', 'pie')">🥧 Pie</button>
+                    <button onclick="toggleView('transmissionVoltage', 'bar')">📊 Bar</button>
+                    <button onclick="exportTableCSV('transmissionVoltageTable', 'transmission_voltage.csv')">📥 CSV</button>
+                </div>
+                <div id="transmissionVoltageTable"></div>
+                <div style="max-width:600px; max-height:400px; margin:0 auto;">
+                    <canvas id="transmissionVoltagePie" style="display:none;"></canvas>
+                </div>
+                <div style="max-width:800px; max-height:400px; margin:0 auto;">
+                    <canvas id="transmissionVoltageBar" style="display:none;"></canvas>
+                </div>
+            </div>
+
+            <!-- Transmission Growth -->
+            <div class="chart-card full-width">
+                <h3>Transmission Growth (2021-2026) <input type="checkbox" class="chart-context" data-section="transmissionGrowth" style="float:right;"></h3>
+                <div class="table-controls">
+                    <button onclick="toggleView('transmissionGrowth', 'table')">📋 Table</button>
+                    <button onclick="toggleView('transmissionGrowth', 'bar')">📊 Bar</button>
+                    <button onclick="exportTableCSV('transmissionGrowthTable', 'transmission_growth.csv')">📥 CSV</button>
+                </div>
+                <div id="transmissionGrowthTable"></div>
+                <div style="max-width:800px; max-height:400px; margin:0 auto;">
+                    <canvas id="transmissionGrowthBar" style="display:none;"></canvas>
+                </div>
+            </div>
+
+            <!-- Generation Trends -->
+            <div class="chart-card full-width">
+                <h3>Generation Trends (1946-2024) <input type="checkbox" class="chart-context" data-section="genTrends" style="float:right;"></h3>
+                <div class="table-controls">
+                    <button onclick="toggleView('genTrends', 'table')">📋 Table</button>
+                    <button onclick="toggleView('genTrends', 'bar')">📊 Bar</button>
+                    <button onclick="exportTableCSV('genTrendsTable', 'generation_trends.csv')">📥 CSV</button>
+                </div>
+                <div id="genTrendsTable"></div>
+                <div style="max-width:800px; max-height:400px; margin:0 auto;">
+                    <canvas id="genTrendsBar" style="display:none;"></canvas>
+                </div>
+            </div>
+
+            <!-- Capacity Status -->
+            <div class="chart-card full-width">
+                <h3>Capacity Status <input type="checkbox" class="chart-context" data-section="capStatus" style="float:right;"></h3>
+                <div class="table-controls">
+                    <button onclick="toggleView('capStatus', 'table')">📋 Table</button>
+                    <button onclick="toggleView('capStatus', 'pie')">🥧 Pie</button>
+                    <button onclick="exportTableCSV('capStatusTable', 'capacity_status.csv')">📥 CSV</button>
+                </div>
+                <div id="capStatusTable"></div>
+                <div style="max-width:600px; max-height:400px; margin:0 auto;">
+                    <canvas id="capStatusPie" style="display:none;"></canvas>
+                </div>
+            </div>
+            </div>
+
+            <!-- Chatbot -->
+            <div id="chatbot">
+                <div>
+                    <h3>🤖 Gargi AI</h3>
+                </div>
+                <div id="chatMessages"></div>
+                <div>
+                    <div style="position:relative;">
+                        <button id="webToggle" onclick="toggleWeb()">🌐</button>
+                        <textarea id="chatInput" placeholder="Ask about energy data..." rows="1"></textarea>
+                        <button onclick="sendMessage()">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Data Source: National Power Portal (NPP) | Developed by Yogesh Kumar Jha</p>
+        </footer>
+    </div>
+
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>
