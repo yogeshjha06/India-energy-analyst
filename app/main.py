@@ -30,6 +30,18 @@ app.include_router(gargi.router)
 async def root():
     return {"message": "India Energy API is running!"}
 
+@app.head("/")
+async def root_head():
+    return {}
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
+
+@app.head("/health")
+async def health_head():
+    return {}
+
 @app.get("/dashboard")
 async def dashboard():
     return FileResponse("app/static/dashboard.html")
